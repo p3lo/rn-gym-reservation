@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { atom, useAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import React from 'react';
 import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { Button, Divider, Snackbar, Text, TextInput } from 'react-native-paper';
@@ -7,7 +7,6 @@ import { showSnackbarRegistration } from '../lib/jotai/atoms';
 
 function LoginScreen() {
   const { navigate } = useNavigation();
-  // const [visible, setVisible] = React.useState(true);
   const [visible, setVisible] = useAtom(showSnackbarRegistration);
   return (
     <ScrollView className="flex-1 ">
@@ -69,7 +68,7 @@ function LoginScreen() {
         onDismiss={() => {
           setVisible(false);
         }}
-        duration={3000}
+        duration={5000}
         action={{
           label: 'Zavri',
           onPress: () => {
