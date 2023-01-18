@@ -1,20 +1,66 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  adaptNavigationTheme,
+  Button,
+  MD3DarkTheme,
+  MD3LightTheme,
+  Provider as PaperProvider,
+  withTheme,
+} from 'react-native-paper';
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaultTheme,
+  NavigationContainer,
+} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Text, View } from 'react-native';
+import { SUPABASE_URL } from '@env';
+import merge from 'deepmerge';
+import LoginScreen from './screens/LoginScreen';
+import SignupScreen from './screens/SignupScreen';
+
+const { LightTheme, DarkTheme } = adaptNavigationTheme({
+  reactNavigationLight: NavigationDefaultTheme,
+  reactNavigationDark: NavigationDarkTheme,
+});
+
+const CombinedDefaultTheme = merge(MD3LightTheme, LightTheme);
+const CombinedDarkTheme = merge(MD3DarkTheme, DarkTheme);
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [isThemeDark, setIsThemeDark] = React.useState(true);
+
+  let theme = isThemeDark ? CombinedDarkTheme : CombinedDefaultTheme;
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style={theme === CombinedDarkTheme ? 'light' : 'dark'} />
+      <PaperProvider theme={theme}>
+        <Root theme={theme} />
+      </PaperProvider>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function Root({ theme }: { theme: any }) {
+  return <Navigation theme={theme} />;
+}
+
+function Navigation({ theme }: { theme: any }) {
+  return (
+    <NavigationContainer theme={theme}>
+      <AuthStack />
+    </NavigationContainer>
+  );
+}
+
+function AuthStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
+    </Stack.Navigator>
+  );
+}
