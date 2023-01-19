@@ -3,7 +3,7 @@ import React from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Pressable } from 'react-native';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { z, ZodIssue } from 'zod';
-import { authToken } from '../lib/jotai/atoms';
+import { authTokenAtom } from '../lib/jotai/atoms';
 import { supabase } from '../lib/supabase/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -18,7 +18,7 @@ type UserInfoForm = z.infer<typeof UserInfoSchema>;
 function SetUserInfo(this: any, { route }) {
   const { userId } = route.params;
 
-  const [token, setToken] = useAtom(authToken);
+  const [token, setToken] = useAtom(authTokenAtom);
   const [errorZod, setErrorZod] = React.useState<ZodIssue[] | null>(null);
   const [userInfo, setUserInfo] = React.useState<UserInfoForm>({
     firstName: '',
@@ -53,14 +53,12 @@ function SetUserInfo(this: any, { route }) {
         return;
       }
     }
-    const { error } = await supabase
-      .from('profiles')
-      .upsert({
-        id: userId,
-        first_name: userInfo.firstName,
-        surname: userInfo.surname,
-        birth_date: userInfo.birthDate,
-      });
+    const { error } = await supabase.from('profiles').upsert({
+      id: userId,
+      first_name: userInfo.firstName,
+      surname: userInfo.surname,
+      birth_date: userInfo.birthDate,
+    });
     console.log(error);
   }
 

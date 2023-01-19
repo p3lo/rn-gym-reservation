@@ -22,7 +22,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import { supabase } from './lib/supabase/supabase';
 import { useAtom } from 'jotai';
-import { authToken } from './lib/jotai/atoms';
+import { authTokenAtom, isThemeDarkAtom } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
 import Home from './screens/mainApp/Home';
 global.Buffer = require('buffer').Buffer;
@@ -38,7 +38,8 @@ const CombinedDarkTheme = merge(MD3DarkTheme, DarkTheme);
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [isThemeDark, setIsThemeDark] = React.useState(true);
+  // const [isThemeDark, setIsThemeDark] = React.useState(true);
+  const [isThemeDark, setIsThemeDark] = useAtom(isThemeDarkAtom);
 
   let theme = isThemeDark ? CombinedDarkTheme : CombinedDefaultTheme;
   return (
@@ -56,18 +57,16 @@ function Root({ theme }: { theme: any }) {
 }
 
 function Navigation({ theme }: { theme: any }) {
-  const [token, setToken] = useAtom(authToken);
+  const [token, setToken] = useAtom(authTokenAtom);
   const [isLoading, setIsLoading] = React.useState(true);
   const [profile, setProfile] = React.useState<number>(0);
   const [userId, setUserId] = React.useState<string>('');
   React.useEffect(() => {
     async function isLoggedIn() {
       const { data, error } = await supabase.auth.getSession();
-      console.log('🚀 ~ file: App.tsx:65 ~ isLoggedIn ~ error', error);
       if (data.session?.access_token) {
         setToken(data.session.access_token);
         const getProfile = await supabase.from('profiles').select('id').eq('id', data.session.user.id);
-        console.log('🚀 ~ file: App.tsx:68 ~ isLoggedIn ~ getProfile', getProfile);
         setProfile(getProfile.data?.length || 0);
         setUserId(data.session.user.id);
       }

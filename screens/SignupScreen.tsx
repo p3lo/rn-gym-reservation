@@ -3,7 +3,7 @@ import React from 'react';
 import { Alert, KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { ActivityIndicator, Button, HelperText, TextInput } from 'react-native-paper';
 import { z, ZodIssue } from 'zod';
-import { showSnackbarRegistration } from '../lib/jotai/atoms';
+import { showSnackbarRegistrationAtom } from '../lib/jotai/atoms';
 import { useAtom } from 'jotai';
 import { supabase } from '../lib/supabase/supabase';
 
@@ -17,7 +17,7 @@ type SignupForm = z.infer<typeof SignupSchema>;
 
 function SignupScreen(this: any) {
   const navigator = useNavigation();
-  const [, setVisible] = useAtom(showSnackbarRegistration);
+  const [, setVisible] = useAtom(showSnackbarRegistrationAtom);
   const [regForm, setRegForm] = React.useState<SignupForm>({
     email: '',
     password: '',

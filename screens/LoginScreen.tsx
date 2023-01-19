@@ -3,13 +3,13 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { Button, Divider, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
-import { authToken, showSnackbarRegistration } from '../lib/jotai/atoms';
+import { authTokenAtom, showSnackbarRegistrationAtom } from '../lib/jotai/atoms';
 import { googleSignIn, linkedInSignIn, supabase } from '../lib/supabase/supabase';
 
 function LoginScreen(this: any) {
   const { navigate } = useNavigation();
-  const [visible, setVisible] = useAtom(showSnackbarRegistration);
-  const [, setToken] = useAtom(authToken);
+  const [visible, setVisible] = useAtom(showSnackbarRegistrationAtom);
+  const [, setToken] = useAtom(authTokenAtom);
   const [login, setLogin] = React.useState({
     email: '',
     password: '',
