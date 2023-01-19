@@ -4,9 +4,11 @@ import {
   ActivityIndicator,
   adaptNavigationTheme,
   Button,
+  IconButton,
   MD3DarkTheme,
   MD3LightTheme,
   Provider as PaperProvider,
+  Text,
   withTheme,
 } from 'react-native-paper';
 import {
@@ -15,8 +17,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text, View } from 'react-native';
-import { SUPABASE_URL } from '@env';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import merge from 'deepmerge';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
@@ -25,6 +26,8 @@ import { useAtom } from 'jotai';
 import { authTokenAtom, isThemeDarkAtom } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
 import Home from './screens/mainApp/Home';
+import { View } from 'react-native';
+import 'react-native-gesture-handler';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -36,6 +39,7 @@ const CombinedDefaultTheme = merge(MD3LightTheme, LightTheme);
 const CombinedDarkTheme = merge(MD3DarkTheme, DarkTheme);
 
 const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   // const [isThemeDark, setIsThemeDark] = React.useState(true);
@@ -107,7 +111,27 @@ function UserInfo({ userId }: { userId: string }) {
 function MainApp() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen
+        name="Main"
+        component={MainAppDrawer}
+        options={{ headerRight: () => <IconButton icon="menu" size={20} onPress={() => {}} /> }}
+      />
     </Stack.Navigator>
+  );
+}
+
+function MainAppDrawer() {
+  return (
+    <Drawer.Navigator drawerContent={() => <DrawerContent />} screenOptions={{ drawerPosition: 'right' }}>
+      <Drawer.Screen name="Home" component={Home} options={{ headerShown: false }} />
+    </Drawer.Navigator>
+  );
+}
+
+function DrawerContent() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Drawer content</Text>
+    </View>
   );
 }
