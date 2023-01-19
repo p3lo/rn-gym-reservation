@@ -2,9 +2,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
-import { Button, Divider, Snackbar, Text, TextInput } from 'react-native-paper';
+import { Button, Divider, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
 import { authToken, showSnackbarRegistration } from '../lib/jotai/atoms';
-import { googleSignIn, supabase } from '../lib/supabase/supabase';
+import { googleSignIn, linkedInSignIn, supabase } from '../lib/supabase/supabase';
 
 function LoginScreen(this: any) {
   const { navigate } = useNavigation();
@@ -14,6 +14,7 @@ function LoginScreen(this: any) {
     email: '',
     password: '',
   });
+  const [wrongCredentials, setWrongCredentials] = React.useState(false);
 
   function handleLoginInputs(key: keyof typeof login, value: string) {
     setLogin((prev) => ({ ...prev, [key]: value }));
@@ -24,6 +25,10 @@ function LoginScreen(this: any) {
       email: login.email,
       password: login.password,
     });
+    if (error) {
+      setWrongCredentials(true);
+      return;
+    }
     if (data.session) {
       setToken(data.session.access_token);
     }
@@ -31,6 +36,13 @@ function LoginScreen(this: any) {
 
   async function handleGoogleLogin() {
     const token = await googleSignIn();
+    if (token) {
+      setToken(token);
+    }
+  }
+
+  async function handleLinkedinLogin() {
+    const token = await linkedInSignIn();
     if (token) {
       setToken(token);
     }
@@ -49,24 +61,31 @@ function LoginScreen(this: any) {
             onChangeText={handleLoginInputs.bind(this, 'email')}
             value={login.email}
           />
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={{ width: '100%' }}
-            label="Heslo"
-            secureTextEntry
-            left={<TextInput.Icon icon="key-outline" />}
-            onChangeText={handleLoginInputs.bind(this, 'password')}
-            value={login.password}
-          />
-          <Button
-            style={{ alignItems: 'flex-end' }}
-            compact={true}
-            mode="text"
-            onPress={() => navigate('Registracia' as never)}
-          >
-            Zabudol som heslo
-          </Button>
+          <View>
+            <TextInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={{ width: '100%' }}
+              label="Heslo"
+              secureTextEntry
+              left={<TextInput.Icon icon="key-outline" />}
+              onChangeText={handleLoginInputs.bind(this, 'password')}
+              value={login.password}
+            />
+            <View className="flex flex-row items-center justify-between">
+              <HelperText type="error" visible={wrongCredentials}>
+                Zly email alebo heslo
+              </HelperText>
+              <Button
+                style={{ alignItems: 'flex-end' }}
+                compact={true}
+                mode="text"
+                onPress={() => navigate('Registracia' as never)}
+              >
+                Zabudol som heslo
+              </Button>
+            </View>
+          </View>
 
           <Button style={{ marginTop: 16, minWidth: '100%' }} icon="login" mode="contained" onPress={handleEmailLogin}>
             Login
@@ -93,8 +112,8 @@ function LoginScreen(this: any) {
           <Button style={{ minWidth: '100%' }} icon="google" mode="outlined" onPress={handleGoogleLogin}>
             Google
           </Button>
-          <Button style={{ minWidth: '100%' }} icon="apple" mode="outlined" onPress={handleGoogleLogin}>
-            AppleID
+          <Button style={{ minWidth: '100%' }} icon="linkedin" mode="outlined" onPress={handleLinkedinLogin}>
+            LinkedIN
           </Button>
         </View>
       </View>

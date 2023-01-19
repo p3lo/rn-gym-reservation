@@ -24,6 +24,7 @@ import { supabase } from './lib/supabase/supabase';
 import { useAtom } from 'jotai';
 import { authToken } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
+import Home from './screens/mainApp/Home';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -57,15 +58,17 @@ function Root({ theme }: { theme: any }) {
 function Navigation({ theme }: { theme: any }) {
   const [token, setToken] = useAtom(authToken);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [profile, setProfile] = React.useState<number | null>(null);
+  const [profile, setProfile] = React.useState<number>(0);
   const [userId, setUserId] = React.useState<string>('');
   React.useEffect(() => {
     async function isLoggedIn() {
-      const { data } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
+      console.log('🚀 ~ file: App.tsx:65 ~ isLoggedIn ~ error', error);
       if (data.session?.access_token) {
         setToken(data.session.access_token);
         const getProfile = await supabase.from('profiles').select('id').eq('id', data.session.user.id);
-        setProfile(getProfile.count);
+        console.log('🚀 ~ file: App.tsx:68 ~ isLoggedIn ~ getProfile', getProfile);
+        setProfile(getProfile.data?.length || 0);
         setUserId(data.session.user.id);
       }
       setIsLoading(false);
@@ -78,7 +81,8 @@ function Navigation({ theme }: { theme: any }) {
   }
   return (
     <NavigationContainer theme={theme}>
-      {token && !profile && <UserInfo userId={userId} />}
+      {token && profile === 0 && <UserInfo userId={userId} />}
+      {token && profile > 0 && <MainApp />}
       {!token && <AuthStack />}
     </NavigationContainer>
   );
@@ -94,11 +98,17 @@ function AuthStack() {
 }
 
 function UserInfo({ userId }: { userId: string }) {
-  console.log('🚀 ~ file: App.tsx:97 ~ UserInfo ~ userId', userId);
-
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Uzivatel" component={SetUserInfo} />
+      <Stack.Screen name="Uzivatel" component={SetUserInfo} initialParams={{ userId: userId }} />
+    </Stack.Navigator>
+  );
+}
+
+function MainApp() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={Home} />
     </Stack.Navigator>
   );
 }
