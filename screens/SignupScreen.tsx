@@ -1,10 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
-import { Button, HelperText, TextInput } from 'react-native-paper';
+import { Alert, KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Button, HelperText, TextInput } from 'react-native-paper';
 import { z, ZodIssue } from 'zod';
 import { showSnackbarRegistration } from '../lib/jotai/atoms';
 import { useAtom } from 'jotai';
+import { supabase } from '../lib/supabase/supabase';
 
 const SignupSchema = z.object({
   email: z.string().email(),
@@ -22,16 +23,17 @@ function SignupScreen(this: any) {
     password: '',
     passwordRepeat: '',
   });
-  const [error, setError] = React.useState<ZodIssue[] | null>(null);
+  const [errorZod, setErrorZod] = React.useState<ZodIssue[] | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   function handleFormChange(key: keyof SignupForm, value: string) {
     setRegForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit() {
-    setError(null);
+  async function handleSubmit() {
+    setErrorZod(null);
     if (regForm.password !== regForm.passwordRepeat) {
-      setError([
+      setErrorZod([
         {
           code: 'invalid_literal',
           path: ['passwordRepeat'],
@@ -45,18 +47,34 @@ function SignupScreen(this: any) {
       SignupSchema.parse(regForm);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setError(error.issues);
+        setErrorZod(error.issues);
+        return;
       }
     }
+    setIsLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email: regForm.email,
+      password: regForm.password,
+    });
+
+    if (error) {
+      Alert.alert(error.message);
+      return;
+    }
+    setIsLoading(false);
     setVisible(true);
     navigator.goBack();
   }
 
   function hasError(what: keyof SignupForm) {
-    if (error) {
-      return error.find((e) => e.path[0] === what) ? true : false;
+    if (errorZod) {
+      return errorZod.find((e) => e.path[0] === what) ? true : false;
     }
     return false;
+  }
+
+  if (isLoading) {
+    return <ActivityIndicator animating={true} className="items-center justify-center flex-1" />;
   }
 
   return (
@@ -71,6 +89,8 @@ function SignupScreen(this: any) {
                 left={<TextInput.Icon icon="email-outline" />}
                 onChangeText={handleFormChange.bind(this, 'email')}
                 value={regForm.email}
+                autoCapitalize="none"
+                autoCorrect={false}
               />
               <HelperText type="error" visible={hasError('email')}>
                 Neplatna email adresa
@@ -78,6 +98,8 @@ function SignupScreen(this: any) {
             </View>
             <View>
               <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
                 style={{ width: '100%' }}
                 label="Heslo"
                 secureTextEntry
@@ -91,6 +113,8 @@ function SignupScreen(this: any) {
             </View>
             <View>
               <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
                 style={{ width: '100%' }}
                 label="Zopakuj heslo"
                 secureTextEntry

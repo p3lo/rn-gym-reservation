@@ -1,6 +1,7 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
+  ActivityIndicator,
   adaptNavigationTheme,
   Button,
   MD3DarkTheme,
@@ -19,6 +20,11 @@ import { SUPABASE_URL } from '@env';
 import merge from 'deepmerge';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
+import { supabase } from './lib/supabase/supabase';
+import { useAtom } from 'jotai';
+import { authToken } from './lib/jotai/atoms';
+import SetUserInfo from './screens/SetUserInfo';
+global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
   reactNavigationLight: NavigationDefaultTheme,
@@ -49,9 +55,31 @@ function Root({ theme }: { theme: any }) {
 }
 
 function Navigation({ theme }: { theme: any }) {
+  const [token, setToken] = useAtom(authToken);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [profile, setProfile] = React.useState<number | null>(null);
+  const [userId, setUserId] = React.useState<string>('');
+  React.useEffect(() => {
+    async function isLoggedIn() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.access_token) {
+        setToken(data.session.access_token);
+        const getProfile = await supabase.from('profiles').select('id').eq('id', data.session.user.id);
+        setProfile(getProfile.count);
+        setUserId(data.session.user.id);
+      }
+      setIsLoading(false);
+    }
+
+    isLoggedIn();
+  }, [token]);
+  if (isLoading) {
+    return <ActivityIndicator animating={true} className="items-center justify-center flex-1" />;
+  }
   return (
     <NavigationContainer theme={theme}>
-      <AuthStack />
+      {token && !profile && <UserInfo userId={userId} />}
+      {!token && <AuthStack />}
     </NavigationContainer>
   );
 }
@@ -61,6 +89,16 @@ function AuthStack() {
     <Stack.Navigator>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Registracia" component={SignupScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function UserInfo({ userId }: { userId: string }) {
+  console.log('🚀 ~ file: App.tsx:97 ~ UserInfo ~ userId', userId);
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Uzivatel" component={SetUserInfo} />
     </Stack.Navigator>
   );
 }

@@ -3,21 +3,61 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { Button, Divider, Snackbar, Text, TextInput } from 'react-native-paper';
-import { showSnackbarRegistration } from '../lib/jotai/atoms';
+import { authToken, showSnackbarRegistration } from '../lib/jotai/atoms';
+import { googleSignIn, supabase } from '../lib/supabase/supabase';
 
-function LoginScreen() {
+function LoginScreen(this: any) {
   const { navigate } = useNavigation();
   const [visible, setVisible] = useAtom(showSnackbarRegistration);
+  const [, setToken] = useAtom(authToken);
+  const [login, setLogin] = React.useState({
+    email: '',
+    password: '',
+  });
+
+  function handleLoginInputs(key: keyof typeof login, value: string) {
+    setLogin((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleEmailLogin() {
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email: login.email,
+      password: login.password,
+    });
+    if (data.session) {
+      setToken(data.session.access_token);
+    }
+  }
+
+  async function handleGoogleLogin() {
+    const token = await googleSignIn();
+    if (token) {
+      setToken(token);
+    }
+  }
+
   return (
     <ScrollView className="flex-1 ">
       <View className="justify-center items-center min-w-full min-h-[92vh] p-4">
         <KeyboardAvoidingView behavior="position" className="flex flex-col w-full space-y-3">
-          <TextInput style={{ width: '100%' }} label="Email" left={<TextInput.Icon icon="email-outline" />} />
           <TextInput
+            style={{ width: '100%' }}
+            autoCapitalize="none"
+            autoCorrect={false}
+            label="Email"
+            left={<TextInput.Icon icon="email-outline" />}
+            onChangeText={handleLoginInputs.bind(this, 'email')}
+            value={login.email}
+          />
+          <TextInput
+            autoCapitalize="none"
+            autoCorrect={false}
             style={{ width: '100%' }}
             label="Heslo"
             secureTextEntry
             left={<TextInput.Icon icon="key-outline" />}
+            onChangeText={handleLoginInputs.bind(this, 'password')}
+            value={login.password}
           />
           <Button
             style={{ alignItems: 'flex-end' }}
@@ -28,12 +68,7 @@ function LoginScreen() {
             Zabudol som heslo
           </Button>
 
-          <Button
-            style={{ marginTop: 16, minWidth: '100%' }}
-            icon="login"
-            mode="contained"
-            onPress={() => console.log('Pressed')}
-          >
+          <Button style={{ marginTop: 16, minWidth: '100%' }} icon="login" mode="contained" onPress={handleEmailLogin}>
             Login
           </Button>
           <View className="flex flex-row items-center justify-center">
@@ -55,10 +90,10 @@ function LoginScreen() {
           <Text style={{ opacity: 0.5 }} variant="titleSmall">
             Alebo sa logni
           </Text>
-          <Button style={{ minWidth: '100%' }} icon="google" mode="outlined" onPress={() => console.log('Pressed')}>
+          <Button style={{ minWidth: '100%' }} icon="google" mode="outlined" onPress={handleGoogleLogin}>
             Google
           </Button>
-          <Button style={{ minWidth: '100%' }} icon="apple" mode="outlined" onPress={() => console.log('Pressed')}>
+          <Button style={{ minWidth: '100%' }} icon="apple" mode="outlined" onPress={handleGoogleLogin}>
             AppleID
           </Button>
         </View>
@@ -76,7 +111,7 @@ function LoginScreen() {
           },
         }}
       >
-        Registracia hotova! Teraz sa môžeš prihlásiť.
+        Overovaci email bol poslany.
       </Snackbar>
     </ScrollView>
   );
