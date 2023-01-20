@@ -1,11 +1,10 @@
-import { useAtom } from 'jotai';
 import React from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Pressable } from 'react-native';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { z, ZodIssue } from 'zod';
-import { authTokenAtom } from '../lib/jotai/atoms';
 import { supabase } from '../lib/supabase/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import LogoutButton from '../components/LogoutButton';
 
 const UserInfoSchema = z.object({
   firstName: z.string().min(2),
@@ -18,7 +17,6 @@ type UserInfoForm = z.infer<typeof UserInfoSchema>;
 function SetUserInfo(this: any, { route }) {
   const { userId } = route.params;
 
-  const [token, setToken] = useAtom(authTokenAtom);
   const [errorZod, setErrorZod] = React.useState<ZodIssue[] | null>(null);
   const [userInfo, setUserInfo] = React.useState<UserInfoForm>({
     firstName: '',
@@ -26,13 +24,6 @@ function SetUserInfo(this: any, { route }) {
     birthDate: new Date(),
   });
   const [show, setShow] = React.useState(false);
-
-  async function handleLogout() {
-    let { error } = await supabase.auth.signOut();
-    if (!error) {
-      setToken('');
-    }
-  }
 
   function handleFormChange(key: keyof UserInfoForm, value: string) {
     setUserInfo((prev) => ({ ...prev, [key]: value }));
@@ -133,14 +124,7 @@ function SetUserInfo(this: any, { route }) {
             Ulozit
           </Button>
         </KeyboardAvoidingView>
-        <Button
-          style={{ minWidth: '100%', position: 'absolute', bottom: '0%' }}
-          icon="logout"
-          mode="outlined"
-          onPress={handleLogout}
-        >
-          Odlogovat
-        </Button>
+        <LogoutButton style="" />
       </View>
     </ScrollView>
   );
