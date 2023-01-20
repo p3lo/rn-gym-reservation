@@ -23,11 +23,13 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import { supabase } from './lib/supabase/supabase';
 import { useAtom } from 'jotai';
-import { authTokenAtom, isThemeDarkAtom } from './lib/jotai/atoms';
+import { authTokenAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
 import Home from './screens/mainApp/Home';
 import { View } from 'react-native';
 import 'react-native-gesture-handler';
+import DrawerContent from './components/DrawerContent';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -42,10 +44,18 @@ const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 export default function App() {
-  // const [isThemeDark, setIsThemeDark] = React.useState(true);
   const [isThemeDark, setIsThemeDark] = useAtom(isThemeDarkAtom);
-
   let theme = isThemeDark ? CombinedDarkTheme : CombinedDefaultTheme;
+  const { getItem, setItem } = useAsyncStorage('isThemeDark');
+  React.useEffect(() => {
+    async function getTheme() {
+      const getIsDark = await getItem();
+      if (getIsDark) {
+        setIsThemeDark(JSON.parse(getIsDark));
+      }
+    }
+    getTheme();
+  }, []);
   return (
     <>
       <StatusBar style={theme === CombinedDarkTheme ? 'light' : 'dark'} />
@@ -63,7 +73,7 @@ function Root({ theme }: { theme: any }) {
 function Navigation({ theme }: { theme: any }) {
   const [token, setToken] = useAtom(authTokenAtom);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [profile, setProfile] = React.useState<number>(0);
+  const [profile, setProfile] = useAtom(profileAtom);
   const [userId, setUserId] = React.useState<string>('');
   React.useEffect(() => {
     async function isLoggedIn() {
@@ -85,7 +95,7 @@ function Navigation({ theme }: { theme: any }) {
   return (
     <NavigationContainer theme={theme}>
       {token && profile === 0 && <UserInfo userId={userId} />}
-      {token && profile > 0 && <MainApp />}
+      {token && profile > 0 && <MainAppDrawer />}
       {!token && <AuthStack />}
     </NavigationContainer>
   );
@@ -108,13 +118,16 @@ function UserInfo({ userId }: { userId: string }) {
   );
 }
 
-function MainApp() {
+function MainApp({ navigation }: { navigation: any }) {
+  function openDrawer() {
+    navigation.openDrawer();
+  }
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="Main"
-        component={MainAppDrawer}
-        options={{ headerRight: () => <IconButton icon="menu" size={20} onPress={() => {}} /> }}
+        component={Home}
+        options={{ headerRight: () => <IconButton icon="menu" size={20} onPress={openDrawer} /> }}
       />
     </Stack.Navigator>
   );
@@ -123,15 +136,15 @@ function MainApp() {
 function MainAppDrawer() {
   return (
     <Drawer.Navigator drawerContent={() => <DrawerContent />} screenOptions={{ drawerPosition: 'right' }}>
-      <Drawer.Screen name="Home" component={Home} options={{ headerShown: false }} />
+      <Drawer.Screen name="Home" component={MainApp} options={{ headerShown: false }} />
     </Drawer.Navigator>
   );
 }
 
-function DrawerContent() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Drawer content</Text>
-    </View>
-  );
-}
+// function DrawerContent() {
+//   return (
+//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+//       <Text>Drawer content</Text>
+//     </View>
+//   );
+// }
