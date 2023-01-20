@@ -23,7 +23,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import { supabase } from './lib/supabase/supabase';
 import { useAtom } from 'jotai';
-import { authTokenAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
+import { authTokenAtom, drawerAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
 import Home from './screens/mainApp/Home';
 import { View } from 'react-native';
@@ -119,6 +119,10 @@ function UserInfo({ userId }: { userId: string }) {
 }
 
 function MainApp({ navigation }: { navigation: any }) {
+  const [, setDrawer] = useAtom(drawerAtom);
+  React.useEffect(() => {
+    setDrawer(navigation);
+  }, []);
   function openDrawer() {
     navigation.openDrawer();
   }
