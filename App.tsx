@@ -23,7 +23,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import { supabase } from './lib/supabase/supabase';
 import { useAtom } from 'jotai';
-import { authTokenAtom, drawerAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
+import { authTokenAtom, drawerAtom, isLoginAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
 import Home from './screens/mainApp/Home';
 import { View } from 'react-native';
@@ -72,11 +72,12 @@ function Root({ theme }: { theme: any }) {
 
 function Navigation({ theme }: { theme: any }) {
   const [token, setToken] = useAtom(authTokenAtom);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useAtom(isLoginAtom);
   const [profile, setProfile] = useAtom(profileAtom);
   const [userId, setUserId] = React.useState<string>('');
   React.useEffect(() => {
     async function isLoggedIn() {
+      setIsLoading(true);
       const { data, error } = await supabase.auth.getSession();
       if (data.session?.access_token) {
         setToken(data.session.access_token);
@@ -90,12 +91,12 @@ function Navigation({ theme }: { theme: any }) {
     isLoggedIn();
   }, [token]);
   if (isLoading) {
-    return <ActivityIndicator animating={true} className="items-center justify-center flex-1" />;
+    return <ActivityIndicator animating={true} theme={theme} className="items-center justify-center flex-1" />;
   }
   return (
     <NavigationContainer theme={theme}>
       {token && profile === 0 && <UserInfo userId={userId} />}
-      {token && profile > 0 && <MainAppDrawer />}
+      {token && profile > 0 && <MainAppDrawer userId={userId} />}
       {!token && <AuthStack />}
     </NavigationContainer>
   );
@@ -118,7 +119,8 @@ function UserInfo({ userId }: { userId: string }) {
   );
 }
 
-function MainApp({ navigation }: { navigation: any }) {
+function MainApp({ navigation, route }: { navigation: any; route: any }) {
+  const { userId } = route.params;
   const [, setDrawer] = useAtom(drawerAtom);
   React.useEffect(() => {
     setDrawer(navigation);
@@ -132,15 +134,24 @@ function MainApp({ navigation }: { navigation: any }) {
         name="Main"
         component={Home}
         options={{ headerRight: () => <IconButton icon="menu" size={20} onPress={openDrawer} /> }}
+        initialParams={{ userId: userId }}
       />
     </Stack.Navigator>
   );
 }
 
-function MainAppDrawer() {
+function MainAppDrawer({ userId }: { userId: string }) {
   return (
-    <Drawer.Navigator drawerContent={() => <DrawerContent />} screenOptions={{ drawerPosition: 'right' }}>
-      <Drawer.Screen name="Home" component={MainApp} options={{ headerShown: false }} />
+    <Drawer.Navigator
+      drawerContent={() => <DrawerContent userId={userId} />}
+      screenOptions={{ drawerPosition: 'right' }}
+    >
+      <Drawer.Screen
+        name="Home"
+        component={MainApp}
+        options={{ headerShown: false }}
+        initialParams={{ userId: userId }}
+      />
     </Drawer.Navigator>
   );
 }

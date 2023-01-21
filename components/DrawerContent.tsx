@@ -7,8 +7,9 @@ import { drawerAtom, isThemeDarkAtom } from '../lib/jotai/atoms';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import LogoutButton from './LogoutButton';
+import CreateGymButton from './CreateGymButton';
 
-function DrawerContent() {
+function DrawerContent({ userId }: { userId: string }) {
   const [isThemeDark, setIsThemeDark] = useAtom(isThemeDarkAtom);
   const [drawer] = useAtom(drawerAtom);
   const { getItem, setItem } = useAsyncStorage('isThemeDark');
@@ -36,7 +37,8 @@ function DrawerContent() {
               </View>
               <IconButton icon="close" size={24} onPress={test} />
             </View>
-            <Divider />
+            <Divider style={{ margin: 16 }} />
+            <CreateGymButton userId={userId} />
           </View>
           <LogoutButton style={style.addMargin} />
         </View>
