@@ -146,12 +146,7 @@ function MainAppDrawer({ userId }: { userId: string }) {
       drawerContent={() => <DrawerContent userId={userId} />}
       screenOptions={{ drawerPosition: 'right' }}
     >
-      <Drawer.Screen
-        name="Home"
-        component={MainApp}
-        options={{ headerShown: false }}
-        initialParams={{ userId: userId }}
-      />
+      <Drawer.Screen name="Home" component={Home} options={{ headerShown: false }} initialParams={{ userId: userId }} />
     </Drawer.Navigator>
   );
 }

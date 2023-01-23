@@ -8,9 +8,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import LogoutButton from './LogoutButton';
 import CreateGymButton from './CreateGymButton';
+import PickMemberGym from './PickMemberGym';
 
 function DrawerContent({ userId }: { userId: string }) {
   const [isThemeDark, setIsThemeDark] = useAtom(isThemeDarkAtom);
+
   const [drawer] = useAtom(drawerAtom);
   const { getItem, setItem } = useAsyncStorage('isThemeDark');
   async function onToggleSwitch() {
@@ -37,6 +39,8 @@ function DrawerContent({ userId }: { userId: string }) {
               </View>
               <IconButton icon="close" size={24} onPress={test} />
             </View>
+            <Divider style={{ margin: 16 }} />
+            <PickMemberGym />
             <Divider style={{ margin: 16 }} />
             <CreateGymButton userId={userId} />
           </View>
