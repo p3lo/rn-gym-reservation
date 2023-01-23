@@ -1,14 +1,14 @@
 import { useAtom } from 'jotai';
 import React from 'react';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
-import { drawerAtom, isLoginAtom } from '../lib/jotai/atoms';
+import { drawerAtom, isLoadingAtom } from '../lib/jotai/atoms';
 import { supabase } from '../lib/supabase/supabase';
 
 function CreateGymButton({ userId }: { userId: string }) {
   const [visible, setVisible] = React.useState(false);
   const [drawer] = useAtom(drawerAtom);
   const [gymName, setGymName] = React.useState('');
-  const [isLoading, setIsLoading] = useAtom(isLoginAtom);
+  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
 
   function showDialog() {
     setVisible(true);

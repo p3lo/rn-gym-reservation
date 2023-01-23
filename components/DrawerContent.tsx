@@ -8,18 +8,18 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import LogoutButton from './LogoutButton';
 import CreateGymButton from './CreateGymButton';
-import PickMemberGym from './PickMemberGym';
+import PickGym from './PickGym';
 
 function DrawerContent({ userId }: { userId: string }) {
   const [isThemeDark, setIsThemeDark] = useAtom(isThemeDarkAtom);
-
   const [drawer] = useAtom(drawerAtom);
   const { getItem, setItem } = useAsyncStorage('isThemeDark');
+
   async function onToggleSwitch() {
     setIsThemeDark(!isThemeDark);
     await setItem(JSON.stringify(!isThemeDark));
   }
-  function test() {
+  function closeDrawer() {
     drawer.closeDrawer();
   }
 
@@ -37,12 +37,11 @@ function DrawerContent({ userId }: { userId: string }) {
                   <Ionicons name="sunny-outline" size={24} color="black" />
                 )}
               </View>
-              <IconButton icon="close" size={24} onPress={test} />
+              <IconButton icon="close" size={24} onPress={closeDrawer} />
             </View>
             <Divider style={{ margin: 16 }} />
-            <PickMemberGym />
-            <Divider style={{ margin: 16 }} />
             <CreateGymButton userId={userId} />
+            <PickGym />
           </View>
           <LogoutButton style={style.addMargin} />
         </View>

@@ -23,7 +23,7 @@ import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import { supabase } from './lib/supabase/supabase';
 import { useAtom } from 'jotai';
-import { authTokenAtom, drawerAtom, isLoginAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
+import { authTokenAtom, drawerAtom, isLoadingAtom, isThemeDarkAtom, profileAtom } from './lib/jotai/atoms';
 import SetUserInfo from './screens/SetUserInfo';
 import Home from './screens/mainApp/Home';
 import { View } from 'react-native';
@@ -72,7 +72,7 @@ function Root({ theme }: { theme: any }) {
 
 function Navigation({ theme }: { theme: any }) {
   const [token, setToken] = useAtom(authTokenAtom);
-  const [isLoading, setIsLoading] = useAtom(isLoginAtom);
+  const [isLoading, setIsLoading] = useAtom(isLoadingAtom);
   const [profile, setProfile] = useAtom(profileAtom);
   const [userId, setUserId] = React.useState<string>('');
   React.useEffect(() => {
@@ -119,27 +119,6 @@ function UserInfo({ userId }: { userId: string }) {
   );
 }
 
-function MainApp({ navigation, route }: { navigation: any; route: any }) {
-  const { userId } = route.params;
-  const [, setDrawer] = useAtom(drawerAtom);
-  React.useEffect(() => {
-    setDrawer(navigation);
-  }, []);
-  function openDrawer() {
-    navigation.openDrawer();
-  }
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Main"
-        component={Home}
-        options={{ headerRight: () => <IconButton icon="menu" size={20} onPress={openDrawer} /> }}
-        initialParams={{ userId: userId }}
-      />
-    </Stack.Navigator>
-  );
-}
-
 function MainAppDrawer({ userId }: { userId: string }) {
   return (
     <Drawer.Navigator
@@ -150,11 +129,3 @@ function MainAppDrawer({ userId }: { userId: string }) {
     </Drawer.Navigator>
   );
 }
-
-// function DrawerContent() {
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//       <Text>Drawer content</Text>
-//     </View>
-//   );
-// }
