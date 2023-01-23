@@ -1,8 +1,9 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { useTheme } from '@react-navigation/native';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Appbar, Button, Text } from 'react-native-paper';
+import { Appbar, Button, IconButton, Text } from 'react-native-paper';
 import { drawerAtom, selectedGymAtom, showGymPickerAtom } from '../../lib/jotai/atoms';
 import { supabase } from '../../lib/supabase/supabase';
 
@@ -16,7 +17,7 @@ type MemberInfo = {
 
 function Home({ route, navigation }: { route: any; navigation: any }) {
   const { userId } = route.params;
-  const [, setDrawer] = useAtom(drawerAtom);
+  const [drawer, setDrawer] = useAtom(drawerAtom);
   const [selectedGym, setSelectedGym] = useAtom(selectedGymAtom);
   const [visiblePicker, setVisiblePicker] = useAtom(showGymPickerAtom);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -32,11 +33,17 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
   };
 
   React.useEffect(() => {
+    navigation.setOptions({
+      title: 'Vyber gym',
+      headerRight: () => <IconButton icon="menu" size={20} onPress={openDrawer} />,
+      headerLeft: () => <IconButton icon="select" size={20} onPress={() => setVisiblePicker(true)} />,
+    });
     setDrawer(navigation);
     async function fetchGymGlobal() {
       const item = await getItem();
       if (item) {
         setSelectedGym(JSON.parse(item));
+        navigation.setOptions({ title: JSON.parse(item).gym_name });
       }
     }
     fetchGymGlobal();
@@ -81,18 +88,13 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
 
   return (
     <>
-      <Appbar.Header>
-        <Appbar.Content title={selectedGym.gym_name ? selectedGym.gym_name : 'Vyber gym'} />
-        <Appbar.Action icon="select" onPress={() => setVisiblePicker(true)} />
-        <Appbar.Action icon="menu" onPress={openDrawer} />
-      </Appbar.Header>
       {!selectedGym.gym_name && (
-        <View className="flex-1 justify-center items-center">
+        <View className="items-center justify-center flex-1">
           <Text variant="headlineMedium">Vyber svoj gym</Text>
         </View>
       )}
       {selectedGym.gym_name && !getMemberInfo ? (
-        <View className="flex-1 justify-center items-center flex-col space-y-10">
+        <View className="flex-col items-center justify-center flex-1 space-y-10">
           <Text variant="titleLarge">Nie si clenom tohto gymu</Text>
           <Button mode="contained" onPress={requestAccess}>
             Poziadaj o pristup
@@ -100,7 +102,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
         </View>
       ) : (
         getMemberInfo?.is_active === false && (
-          <View className="flex-1 justify-center items-center flex-col space-y-10">
+          <View className="flex-col items-center justify-center flex-1 space-y-10">
             <Text variant="titleLarge">Caka sa na schvalenie</Text>
             <Button disabled mode="contained" onPress={() => console.log('kkt')}>
               Ziadost bola poslana

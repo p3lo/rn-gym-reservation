@@ -3,17 +3,39 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Divider, IconButton, Switch } from 'react-native-paper';
-import { drawerAtom, isThemeDarkAtom } from '../lib/jotai/atoms';
+import { drawerAtom, isThemeDarkAtom, selectedGymAtom } from '../lib/jotai/atoms';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import LogoutButton from './LogoutButton';
 import CreateGymButton from './CreateGymButton';
 import PickGym from './PickGym';
+import { supabase } from '../lib/supabase/supabase';
+import { useNavigation } from '@react-navigation/native';
 
 function DrawerContent({ userId }: { userId: string }) {
   const [isThemeDark, setIsThemeDark] = useAtom(isThemeDarkAtom);
+  const [selectedGym, setSelectedGym] = useAtom(selectedGymAtom);
+  const [isTrainer, setIsTrainer] = React.useState(false);
   const [drawer] = useAtom(drawerAtom);
   const { getItem, setItem } = useAsyncStorage('isThemeDark');
+
+  const navigator = useNavigation();
+
+  React.useEffect(() => {
+    async function getIsTrainer() {
+      if (selectedGym.gym_name) {
+        const { data } = await supabase
+          .from('gym_trainers')
+          .select('*')
+          .eq('trainer', userId)
+          .eq('gym', selectedGym.id);
+        if (data && data?.length > 0) {
+          setIsTrainer(true);
+        }
+      }
+    }
+    getIsTrainer();
+  }, [selectedGym]);
 
   async function onToggleSwitch() {
     setIsThemeDark(!isThemeDark);
@@ -41,6 +63,11 @@ function DrawerContent({ userId }: { userId: string }) {
             </View>
             <Divider style={{ margin: 16 }} />
             <CreateGymButton userId={userId} />
+            {isTrainer && (
+              <Button icon="account" mode="contained" onPress={() => navigator.navigate('AdminIndex' as never)}>
+                Admin sekcia
+              </Button>
+            )}
             <PickGym />
           </View>
           <LogoutButton style={style.addMargin} />

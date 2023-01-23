@@ -30,6 +30,8 @@ import { View } from 'react-native';
 import 'react-native-gesture-handler';
 import DrawerContent from './components/DrawerContent';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import AdminIndex from './screens/mainApp/AdminIndex';
+import AdminWaitingForApproval from './screens/mainApp/AdminWaitingForApproval';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -125,7 +127,28 @@ function MainAppDrawer({ userId }: { userId: string }) {
       drawerContent={() => <DrawerContent userId={userId} />}
       screenOptions={{ drawerPosition: 'right' }}
     >
-      <Drawer.Screen name="Home" component={Home} options={{ headerShown: false }} initialParams={{ userId: userId }} />
+      <Drawer.Screen
+        name="Main"
+        component={MainSection}
+        options={{ headerShown: false }}
+        initialParams={{ userId: userId }}
+      />
     </Drawer.Navigator>
+  );
+}
+
+function MainSection({ route }) {
+  const userId = route.params.userId;
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={Home}
+        options={{ headerShown: true, title: 'Vyber gym' }}
+        initialParams={{ userId: userId }}
+      />
+      <Stack.Screen name="AdminIndex" component={AdminIndex} options={{ title: 'Admin sekcia' }} />
+      <Stack.Screen name="AdminWFA" component={AdminWaitingForApproval} options={{ title: 'Cakacka na potvrdenie' }} />
+    </Stack.Navigator>
   );
 }
