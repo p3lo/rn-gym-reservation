@@ -1,8 +1,8 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { useAtom } from 'jotai';
 import React from 'react';
-import { View } from 'react-native';
-import { ActivityIndicator, Appbar, Button, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, View } from 'react-native';
+import { Appbar, Button, Text, useTheme } from 'react-native-paper';
 import { drawerAtom, isLoadingAtom, selectedGymAtom, showGymPickerAtom } from '../../lib/jotai/atoms';
 import { supabase } from '../../lib/supabase/supabase';
 
@@ -23,10 +23,15 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
   const { getItem } = useAsyncStorage('selectedGym');
   const [getMemberInfo, setMemberInfo] = React.useState<MemberInfo>(null);
   const [request, setRequest] = React.useState(false);
-  const theme = useTheme();
+
+  const startLoading = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  };
 
   React.useEffect(() => {
-    setIsLoading(true);
     setDrawer(navigation);
     async function fetchGymGlobal() {
       const item = await getItem();
@@ -35,13 +40,11 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
       }
     }
     fetchGymGlobal();
-
-    setIsLoading(false);
   }, []);
 
   React.useEffect(() => {
-    setIsLoading(true);
     async function getGymMember() {
+      setIsLoading(true);
       if (selectedGym.gym_name) {
         const { data, error } = await supabase
           .from('gym_members')
@@ -52,9 +55,9 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
           setMemberInfo(data[0]);
         }
       }
+      setIsLoading(false);
     }
     getGymMember();
-    setIsLoading(false);
   }, [, selectedGym, request]);
 
   function openDrawer() {
@@ -67,12 +70,13 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
       member: userId,
       gym: selectedGym.id,
     });
+
     setRequest(true);
     setIsLoading(false);
   }
 
   if (isLoading) {
-    return <ActivityIndicator animating={true} theme={theme} className="items-center justify-center flex-1" />;
+    return <ActivityIndicator animating={true} className="items-center justify-center flex-1" />;
   }
 
   return (
@@ -82,7 +86,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
         <Appbar.Action icon="select" onPress={() => setVisiblePicker(true)} />
         <Appbar.Action icon="menu" onPress={openDrawer} />
       </Appbar.Header>
-      {!selectedGym.gym_name && (
+      {!selectedGym.gym_name && !isLoading && (
         <View className="flex-1 justify-center items-center">
           <Text variant="headlineMedium">Vyber svoj gym</Text>
         </View>
