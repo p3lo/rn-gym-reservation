@@ -86,7 +86,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
         <Appbar.Action icon="select" onPress={() => setVisiblePicker(true)} />
         <Appbar.Action icon="menu" onPress={openDrawer} />
       </Appbar.Header>
-      {!selectedGym.gym_name && !isLoading && (
+      {!selectedGym.gym_name && (
         <View className="flex-1 justify-center items-center">
           <Text variant="headlineMedium">Vyber svoj gym</Text>
         </View>
