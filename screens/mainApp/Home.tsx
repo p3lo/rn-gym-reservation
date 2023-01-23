@@ -2,8 +2,8 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { useAtom } from 'jotai';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { Appbar, Button, Text, useTheme } from 'react-native-paper';
-import { drawerAtom, isLoadingAtom, selectedGymAtom, showGymPickerAtom } from '../../lib/jotai/atoms';
+import { Appbar, Button, Text } from 'react-native-paper';
+import { drawerAtom, selectedGymAtom, showGymPickerAtom } from '../../lib/jotai/atoms';
 import { supabase } from '../../lib/supabase/supabase';
 
 type MemberInfo = {
