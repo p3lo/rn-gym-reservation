@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 import { supabase } from '../../lib/supabase/supabase';
 import { useAtom } from 'jotai';
 import { refreshAtom } from '../../lib/jotai/atoms';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 type Member = {
   member: string;
@@ -53,7 +53,6 @@ function AdminMember({ navigation, route }: { navigation: any; route: any }) {
     navigation.setOptions({
       title: member?.profiles.first_name + ' ' + member?.profiles.surname,
     });
-    if (member?.joined_at) console.log(formatDate(member?.joined_at));
   }, [member]);
 
   function formatDate(givenDate: Date) {
@@ -96,7 +95,7 @@ function AdminMember({ navigation, route }: { navigation: any; route: any }) {
     navigation.goBack();
   }
 
-  async function setDate(event: any, date: any) {
+  async function setDate(date: any) {
     setShow(false);
     setMembershipDate(date);
     await supabase.from('gym_members').update({ paid_till: date }).eq('member', userId);
@@ -157,7 +156,7 @@ function AdminMember({ navigation, route }: { navigation: any; route: any }) {
             )}
           </View>
         </View>
-        <View className="flex-1 justify-between flex-col space-y-4">
+        <View className="flex-col justify-between flex-1 space-y-4">
           <Button mode="contained" onPress={() => setShow(true)}>
             Nastavit platnost permanentky
           </Button>
@@ -165,19 +164,19 @@ function AdminMember({ navigation, route }: { navigation: any; route: any }) {
             Vyhodit uzivatela z gymu
           </Button>
         </View>
-        {show && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={membershipDate}
-            mode="date"
-            is24Hour={true}
-            onChange={setDate}
-            minimumDate={new Date()}
-          />
-        )}
+        <DateTimePickerModal
+          isVisible={show}
+          cancelTextIOS="Zrusit"
+          confirmTextIOS="Potvrdit"
+          mode="date"
+          onConfirm={setDate}
+          onCancel={() => setShow(false)}
+          minimumDate={new Date()}
+          is24Hour={true}
+          date={membershipDate}
+        />
         <Portal>
           <Dialog visible={visibleDialog} onDismiss={hideDialog}>
-            {/* <Dialog.Title>Alert</Dialog.Title> */}
             <Dialog.Content>
               <Text variant="bodyMedium">Skutocne vyhodit uzivatela?</Text>
             </Dialog.Content>

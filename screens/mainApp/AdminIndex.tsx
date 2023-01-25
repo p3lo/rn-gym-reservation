@@ -48,6 +48,13 @@ function AdminIndex({ route, navigation }: { route: any; navigation: any }) {
           >
             Zoznam clenov
           </Button>
+          <Button
+            style={{ minWidth: '100%' }}
+            mode="contained-tonal"
+            onPress={() => navigation.navigate('AdminAddTraining')}
+          >
+            Pridat trening
+          </Button>
         </View>
       </ScrollView>
     </>

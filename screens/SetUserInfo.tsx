@@ -3,7 +3,7 @@ import { View, ScrollView, KeyboardAvoidingView, Pressable } from 'react-native'
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { z, ZodIssue } from 'zod';
 import { supabase } from '../lib/supabase/supabase';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import LogoutButton from '../components/LogoutButton';
 
 const UserInfoSchema = z.object({
@@ -29,7 +29,7 @@ function SetUserInfo(this: any, { route }) {
     setUserInfo((prev) => ({ ...prev, [key]: value }));
   }
 
-  function setDate(event: any, date: any) {
+  function setDate(date: any) {
     setShow(false);
     setUserInfo((prev) => ({ ...prev, birthDate: date }));
   }
@@ -64,20 +64,21 @@ function SetUserInfo(this: any, { route }) {
     <ScrollView className="flex-1 ">
       <View className="items-center justify-center flex-1 p-4 min-h-[88vh]">
         <KeyboardAvoidingView behavior="position" className="flex flex-col w-full">
-          {show && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={userInfo.birthDate}
-              mode="date"
-              is24Hour={true}
-              onChange={setDate}
-              maximumDate={new Date()}
-            />
-          )}
+          <DateTimePickerModal
+            isVisible={show}
+            cancelTextIOS="Zrusit"
+            confirmTextIOS="Potvrdit"
+            mode="date"
+            onConfirm={setDate}
+            onCancel={() => setShow(false)}
+            is24Hour={true}
+            date={userInfo.birthDate}
+          />
           <View>
             <TextInput
               style={{ width: '100%' }}
               label="Meno"
+              mode="outlined"
               left={<TextInput.Icon icon="alpha-m-circle-outline" />}
               onChangeText={handleFormChange.bind(this, 'firstName')}
               value={userInfo.firstName}
@@ -88,6 +89,7 @@ function SetUserInfo(this: any, { route }) {
           </View>
           <View>
             <TextInput
+              mode="outlined"
               style={{ width: '100%' }}
               label="Priezvisko"
               left={<TextInput.Icon icon="alpha-p-circle-outline" />}
@@ -102,6 +104,7 @@ function SetUserInfo(this: any, { route }) {
             <Pressable onPress={() => setShow(true)}>
               <View pointerEvents="none">
                 <TextInput
+                  mode="outlined"
                   style={{ width: '100%' }}
                   autoCorrect={false}
                   label="Datum narodenia"
