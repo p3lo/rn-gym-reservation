@@ -4,7 +4,7 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Appbar, Button, IconButton, Text } from 'react-native-paper';
-import { drawerAtom, selectedGymAtom, showGymPickerAtom } from '../../lib/jotai/atoms';
+import { drawerAtom, refreshAtom, selectedGymAtom, showGymPickerAtom } from '../../lib/jotai/atoms';
 import { supabase } from '../../lib/supabase/supabase';
 
 type MemberInfo = {
@@ -23,14 +23,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
   const [isLoading, setIsLoading] = React.useState(true);
   const { getItem } = useAsyncStorage('selectedGym');
   const [getMemberInfo, setMemberInfo] = React.useState<MemberInfo>(null);
-  const [request, setRequest] = React.useState(false);
-
-  const startLoading = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
+  const [refresh, setRefresh] = useAtom(refreshAtom);
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -65,7 +58,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
       setIsLoading(false);
     }
     getGymMember();
-  }, [, selectedGym, request]);
+  }, [, selectedGym, refresh]);
 
   function openDrawer() {
     navigation.openDrawer();
@@ -78,7 +71,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
       gym: selectedGym.id,
     });
 
-    setRequest(true);
+    setRefresh(!refresh);
     setIsLoading(false);
   }
 

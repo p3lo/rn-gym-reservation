@@ -11,16 +11,24 @@ function PickGym() {
   const [visiblePicker, setVisiblePicker] = useAtom(showGymPickerAtom);
   const [value, setValue] = React.useState('');
   const [gyms, setGyms] = React.useState<any[] | null>([]);
-  const { setItem } = useAsyncStorage('selectedGym');
+  const { getItem, setItem } = useAsyncStorage('selectedGym');
 
   React.useLayoutEffect(() => {
     async function fetchGyms() {
       const { data } = await supabase.from('gyms').select('id,gym_name').order('gym_name', { ascending: true });
       setGyms(data);
+      const item = await getItem();
+      if (item) {
+        setValue(JSON.parse(item).gym_name);
+      }
     }
     fetchGyms();
-    setValue(selectedGym.gym_name || '');
   }, []);
+
+  // React.useEffect(() => {
+  //   setValue(selectedGym.gym_name || '');
+  //   console.log(selectedGym.gym_name);
+  // }, []);
 
   const hideDialogPicker = () => setVisiblePicker(false);
 

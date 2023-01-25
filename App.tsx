@@ -32,6 +32,8 @@ import DrawerContent from './components/DrawerContent';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import AdminIndex from './screens/mainApp/AdminIndex';
 import AdminWaitingForApproval from './screens/mainApp/AdminWaitingForApproval';
+import AdminMembersList from './screens/mainApp/AdminMembersList';
+import AdminMember from './screens/mainApp/AdminMember';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -149,6 +151,8 @@ function MainSection({ route }) {
       />
       <Stack.Screen name="AdminIndex" component={AdminIndex} options={{ title: 'Admin sekcia' }} />
       <Stack.Screen name="AdminWFA" component={AdminWaitingForApproval} options={{ title: 'Cakacka na potvrdenie' }} />
+      <Stack.Screen name="AdminMembersList" component={AdminMembersList} options={{ title: 'Zoznam clenov' }} />
+      <Stack.Screen name="AdminMember" component={AdminMember} options={{ title: 'Clen' }} />
     </Stack.Navigator>
   );
 }
