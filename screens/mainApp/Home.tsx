@@ -60,6 +60,28 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
     getGymMember();
   }, [, selectedGym, refresh]);
 
+  React.useEffect(() => {
+    async function getTrainings() {
+      const today = new Date();
+      const future = new Date();
+      future.setDate(future.getDate() + 7);
+      const { data, error } = await supabase
+
+        .from('trainings')
+        .select('*')
+        .eq('gym_id', selectedGym.id)
+        .gte('date', today.toISOString().split('T')[0])
+        .lte('date', future.toISOString().slice(0, 10))
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+      console.log('🚀 ~ file: Home.tsx:76 ~ getTrainings ~ data', data);
+      console.log('🚀 ~ file: Home.tsx:69 ~ getTrainings ~ error', error);
+    }
+    if (getMemberInfo?.is_active) {
+      getTrainings();
+    }
+  }, [, getMemberInfo?.is_active, refresh]);
+
   function openDrawer() {
     navigation.openDrawer();
   }
