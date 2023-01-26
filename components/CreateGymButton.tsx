@@ -41,6 +41,7 @@ function CreateGymButton({ userId }: { userId: string }) {
               label="Nazov gymu"
               onChangeText={setGymName}
               value={gymName}
+              mode="outlined"
               autoCapitalize="none"
               autoCorrect={false}
             />
