@@ -1,4 +1,4 @@
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import {
@@ -11,7 +11,7 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
-import { selectedGymAtom } from '../../lib/jotai/atoms';
+import { refreshAtom, selectedGymAtom } from '../../lib/jotai/atoms';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Slider from '@react-native-community/slider';
 import { supabase } from '../../lib/supabase/supabase';
@@ -32,6 +32,7 @@ function AdminAddTraining(this: any) {
   const [showDate, setShowDate] = React.useState(false);
   const [showTime, setShowTime] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [refresh, setRefresh] = useAtom(refreshAtom);
   const [snackbarText, setSnackbarText] = React.useState('');
   const [training, setTraining] = React.useState<Training>({
     name: '',
@@ -177,6 +178,7 @@ function AdminAddTraining(this: any) {
         setVisibleSnackbar(true);
       }
     }
+    setRefresh(!refresh);
   }
 
   if (isLoading) {
