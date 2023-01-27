@@ -31,10 +31,10 @@ function TrainingLayoutForCards({ training, isDark }: { training: Training[]; is
             {formatDate(training[0]!.date)}
           </Text>
         </View>
-        <Divider style={{ width: '100%' }} />
+        <Divider bold style={{ width: '100%', marginVertical: 6 }} />
       </View>
       {training.map((item) => (
-        <TrainingCard training={item} isDark={isDark} />
+        <TrainingCard key={item?.id} training={item} isDark={isDark} />
       ))}
     </View>
   );
