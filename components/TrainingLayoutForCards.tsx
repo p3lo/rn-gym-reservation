@@ -4,7 +4,15 @@ import { View } from 'react-native';
 import { Training } from '../screens/mainApp/Home';
 import TrainingCard from './TrainingCard';
 
-function TrainingLayoutForCards({ training, isDark }: { training: Training[]; isDark: boolean }) {
+function TrainingLayoutForCards({
+  training,
+  isDark,
+  userId,
+}: {
+  training: Training[];
+  isDark: boolean;
+  userId: string;
+}) {
   function formatDate(dateString: string) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
     const date = new Date(dateString);
@@ -34,7 +42,7 @@ function TrainingLayoutForCards({ training, isDark }: { training: Training[]; is
         <Divider bold style={{ width: '100%', marginVertical: 6 }} />
       </View>
       {training.map((item) => (
-        <TrainingCard key={item?.id} training={item} isDark={isDark} />
+        <TrainingCard key={item?.id} training={item} isDark={isDark} userId={userId} />
       ))}
     </View>
   );

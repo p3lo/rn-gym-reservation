@@ -17,10 +17,6 @@ type MemberInfo = {
   paid_till: Date;
 } | null;
 
-type GroupedTrainings = {
-  [key: string]: Training[];
-};
-
 export type Training = {
   id: number;
   name: string;
@@ -29,6 +25,14 @@ export type Training = {
   training_length: number;
   available_slots: number;
   allow_overbooking: boolean;
+  training_slots:
+    | [
+        {
+          member_id: string;
+          approved: boolean;
+        }
+      ]
+    | [];
 } | null;
 
 function Home({ route, navigation }: { route: any; navigation: any }) {
@@ -78,28 +82,56 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
     getGymMember();
   }, [, selectedGym, refresh]);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     async function getTrainings() {
       setIsLoading(true);
       const today = new Date();
       const future = new Date();
       future.setDate(future.getDate() + 7);
       const { data, error } = await supabase
-
         .from('trainings')
-        .select('*')
+        .select(
+          `*,
+        training_slots (
+          member_id,
+          approved
+          )`
+        )
         .eq('gym_id', selectedGym.id)
         .gte('date', today.toISOString().split('T')[0])
         .lte('date', future.toISOString().slice(0, 10))
         .order('date', { ascending: true })
         .order('time', { ascending: true });
+
       if (data) {
         setTrainings(groupByDate(data));
       }
       setIsLoading(false);
     }
+    async function test() {
+      const today = new Date();
+      const future = new Date();
+      future.setDate(future.getDate() + 7);
+      const { data, error, count } = await supabase
+        .from('trainings')
+        .select(
+          `*,
+        training_slots (
+          member_id,
+          approved
+        )
+        `
+        )
+        .eq('gym_id', selectedGym.id)
+        .gte('date', today.toISOString().split('T')[0])
+        .lte('date', future.toISOString().slice(0, 10))
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+      console.log(data, error, count);
+    }
     if (getMemberInfo?.is_active) {
       getTrainings();
+      test();
     }
   }, [, getMemberInfo?.is_active, refresh]);
 
@@ -162,7 +194,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
             data={trainings}
             keyExtractor={(item: Training[]) => item[0]!.id.toString()}
             renderItem={({ item }: { item: Training[] }) => (
-              <TrainingLayoutForCards training={item} isDark={isThemeDark} />
+              <TrainingLayoutForCards training={item} isDark={isThemeDark} userId={userId} />
             )}
           />
         )
