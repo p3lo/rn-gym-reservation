@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Button, Text } from 'react-native-paper';
@@ -7,10 +7,12 @@ import { Training } from '../screens/mainApp/Home';
 import { supabase } from '../lib/supabase/supabase';
 import { useAtom } from 'jotai';
 import { refreshAtom } from '../lib/jotai/atoms';
+import { useNavigation } from '@react-navigation/native';
 
 function TrainingCard({ training, isDark, userId }: { training: Training; isDark: boolean; userId: string }) {
   const [refresh, setRefresh] = useAtom(refreshAtom);
   const [trainingDef, setTrainingDef] = React.useState<Training>(training);
+  const navigation = useNavigation();
   function formatTime(time: string) {
     const timeArray = time.split(':');
     const formattedTime = timeArray.slice(0, 2).join(':');
@@ -72,12 +74,35 @@ function TrainingCard({ training, isDark, userId }: { training: Training; isDark
       }
     }
   }
+  function getFirstUnapproved(arr: [{ approved: boolean; member_id: string }] | []) {
+    for (let obj of arr) {
+      if (!obj.approved) {
+        return obj;
+      }
+    }
+    return null;
+  }
   async function cancelReservation() {
     const { error } = await supabase
       .from('training_slots')
       .delete()
       .match({ member_id: userId, training_id: training!.id });
 
+    const firstUnapproved = getFirstUnapproved(trainingDef!.training_slots);
+    if (firstUnapproved) {
+      const { error } = await supabase
+        .from('training_slots')
+        .update({ approved: true })
+        .match({ member_id: firstUnapproved.member_id, training_id: training!.id });
+      if (!error) {
+        setTrainingDef((prevState: any) => {
+          return {
+            ...prevState,
+            training_slots: [...prevState!.training_slots, { member_id: firstUnapproved.member_id, approved: true }],
+          };
+        });
+      }
+    }
     if (!error) {
       setTrainingDef((prevState: any) => {
         return {
@@ -87,8 +112,16 @@ function TrainingCard({ training, isDark, userId }: { training: Training; isDark
       });
     }
   }
+
   return (
-    <View className={`w-full my-2 border-[0.5px] rounded-md  ${isDark ? 'border-gray-400/50' : 'border-gray-600/50'}`}>
+    <Pressable
+      className={`w-full my-2  rounded-md  ${
+        isDark ? 'border-gray-400/50 bg-zinc-800' : 'border-gray-600/50 bg-zinc-100'
+      }`}
+      onPress={() => {
+        navigation.navigate('TrainingDetails' as never, { training: trainingDef } as never);
+      }}
+    >
       <View className="flex flex-col m-4">
         <Text style={{ fontWeight: 'bold' }} variant="titleMedium">
           {training!.name}
@@ -143,7 +176,7 @@ function TrainingCard({ training, isDark, userId }: { training: Training; isDark
           </Button>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 

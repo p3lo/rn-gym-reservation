@@ -2,7 +2,7 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import React from 'react';
-import { ActivityIndicator, View, FlatList } from 'react-native';
+import { ActivityIndicator, View, FlatList, RefreshControl } from 'react-native';
 import { Appbar, Button, IconButton, Text } from 'react-native-paper';
 import TrainingCard from '../../components/TrainingCard';
 import TrainingLayoutForCards from '../../components/TrainingLayoutForCards';
@@ -46,6 +46,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
   const [getMemberInfo, setMemberInfo] = React.useState<MemberInfo>(null);
   const [refresh, setRefresh] = useAtom(refreshAtom);
   const [trainings, setTrainings] = React.useState<Training[][]>([]);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   React.useEffect(() => {
     navigation.setOptions({
@@ -108,30 +109,9 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
       }
       setIsLoading(false);
     }
-    async function test() {
-      const today = new Date();
-      const future = new Date();
-      future.setDate(future.getDate() + 7);
-      const { data, error, count } = await supabase
-        .from('trainings')
-        .select(
-          `*,
-        training_slots (
-          member_id,
-          approved
-        )
-        `
-        )
-        .eq('gym_id', selectedGym.id)
-        .gte('date', today.toISOString().split('T')[0])
-        .lte('date', future.toISOString().slice(0, 10))
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
-      console.log(data, error, count);
-    }
+
     if (getMemberInfo?.is_active) {
       getTrainings();
-      test();
     }
   }, [, getMemberInfo?.is_active, refresh]);
 
@@ -196,6 +176,13 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
             renderItem={({ item }: { item: Training[] }) => (
               <TrainingLayoutForCards training={item} isDark={isThemeDark} userId={userId} />
             )}
+            refreshControl={
+              <RefreshControl
+                //refresh control used for the Pull to Refresh
+                refreshing={isRefreshing}
+                onRefresh={() => setRefresh(!refresh)}
+              />
+            }
           />
         )
       )}
