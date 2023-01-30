@@ -20,3 +20,5 @@ export const selectedGymAtom = atom({
 export const showGymPickerAtom = atom(false);
 
 export const refreshAtom = atom(false);
+
+export const refreshInsideCardAtom = atom(false);

@@ -6,13 +6,13 @@ import { Button, Text } from 'react-native-paper';
 import { Training } from '../screens/mainApp/Home';
 import { supabase } from '../lib/supabase/supabase';
 import { useAtom } from 'jotai';
-import { refreshAtom } from '../lib/jotai/atoms';
+import { refreshAtom, refreshInsideCardAtom } from '../lib/jotai/atoms';
 import { useNavigation } from '@react-navigation/native';
 
 function TrainingCard({ training, isDark, userId }: { training: Training; isDark: boolean; userId: string }) {
-  const [refresh, setRefresh] = useAtom(refreshAtom);
   const [trainingDef, setTrainingDef] = React.useState<Training>(training);
   const navigation = useNavigation();
+  const [refresh, setRefresh] = useAtom(refreshInsideCardAtom);
   function formatTime(time: string) {
     const timeArray = time.split(':');
     const formattedTime = timeArray.slice(0, 2).join(':');
@@ -73,6 +73,7 @@ function TrainingCard({ training, isDark, userId }: { training: Training; isDark
         });
       }
     }
+    setRefresh(!refresh);
   }
   function getFirstUnapproved(arr: [{ approved: boolean; member_id: string }] | []) {
     for (let obj of arr) {
@@ -111,6 +112,7 @@ function TrainingCard({ training, isDark, userId }: { training: Training; isDark
         };
       });
     }
+    setRefresh(!refresh);
   }
 
   return (
@@ -119,10 +121,13 @@ function TrainingCard({ training, isDark, userId }: { training: Training; isDark
         isDark ? 'border-gray-400/50 bg-zinc-800' : 'border-gray-600/50 bg-zinc-100'
       }`}
       onPress={() => {
-        navigation.navigate('TrainingDetails' as never, { training: trainingDef } as never);
+        navigation.navigate(
+          'TrainingDetails' as never,
+          { training: trainingDef, isDark: isDark, userId: userId } as never
+        );
       }}
     >
-      <View className="flex flex-col m-4">
+      <View className="flex flex-col gap-y-2 m-4">
         <Text style={{ fontWeight: 'bold' }} variant="titleMedium">
           {training!.name}
         </Text>
