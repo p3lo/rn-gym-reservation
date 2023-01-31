@@ -1,6 +1,6 @@
 import React from 'react';
 import { Divider, Text } from 'react-native-paper';
-import { View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 import { Training } from './Home';
 import { ScrollView } from 'react-native-gesture-handler';
 import TrainingCard from '../../components/TrainingCard';
@@ -20,9 +20,11 @@ type PulledUser = {
 
 function TrainingDetails({ route, navigation }: { route: any; navigation: any }) {
   const { training, isDark, userId }: { training: Training; isDark: boolean; userId: string } = route.params;
+
   const [refresh, setRefresh] = useAtom(refreshInsideCardAtom);
   const [refreshMain, setRefreshMain] = useAtom(refreshAtom);
   const [memberInfo, setMemberInfo] = React.useState<PulledUser[]>([]);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -55,11 +57,19 @@ function TrainingDetails({ route, navigation }: { route: any; navigation: any })
     }
     if (data) {
       setMemberInfo(data as PulledUser[]);
-      console.log(data);
     }
   }
   return (
-    <ScrollView className="m-3 flex-1">
+    <ScrollView
+      className="flex-1 m-3"
+      refreshControl={
+        <RefreshControl
+          tintColor={isDark ? 'white' : 'black'}
+          refreshing={isRefreshing}
+          onRefresh={() => setRefresh(!refresh)}
+        />
+      }
+    >
       <View className="flex flex-col gap-y-4">
         <TrainingCard training={training} isDark={isDark} userId={userId} />
         <View className="flex flex-col gap-y-2">
@@ -76,7 +86,7 @@ function TrainingDetails({ route, navigation }: { route: any; navigation: any })
                 return (
                   <View key={member.member_id} className="flex flex-col p-3 gap-y-2">
                     {index !== 0 && <Divider />}
-                    <View className="flex flex-row gap-x-3 items-center">
+                    <View className="flex flex-row items-center gap-x-3">
                       <Ionicons name="person" size={15} color={`${isDark ? 'gray' : 'darkgray'}`} />
                       {member.approved ? (
                         <Text>{member.profiles?.first_name + ' ' + member.profiles?.surname}</Text>

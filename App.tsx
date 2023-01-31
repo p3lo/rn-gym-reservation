@@ -36,6 +36,7 @@ import AdminMembersList from './screens/mainApp/AdminMembersList';
 import AdminMember from './screens/mainApp/AdminMember';
 import AdminAddTraining from './screens/mainApp/AdminAddTraining';
 import TrainingDetails from './screens/mainApp/TrainingDetails';
+import AdminEditTraining from './screens/mainApp/AdminEditTraining';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -156,6 +157,7 @@ function MainSection({ route }) {
       <Stack.Screen name="AdminMembersList" component={AdminMembersList} options={{ title: 'Zoznam clenov' }} />
       <Stack.Screen name="AdminMember" component={AdminMember} options={{ title: 'Clen' }} />
       <Stack.Screen name="AdminAddTraining" component={AdminAddTraining} options={{ title: 'Pridat trening' }} />
+      <Stack.Screen name="AdminEditTraining" component={AdminEditTraining} options={{ title: 'Upravit trening' }} />
       <Stack.Screen name="TrainingDetails" component={TrainingDetails} />
     </Stack.Navigator>
   );

@@ -55,6 +55,13 @@ function AdminIndex({ route, navigation }: { route: any; navigation: any }) {
           >
             Pridat trening
           </Button>
+          <Button
+            style={{ minWidth: '100%' }}
+            mode="contained-tonal"
+            onPress={() => navigation.navigate('AdminEditTraining')}
+          >
+            Upravit trening
+          </Button>
         </View>
       </ScrollView>
     </>

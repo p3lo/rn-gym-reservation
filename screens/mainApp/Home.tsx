@@ -178,7 +178,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
             )}
             refreshControl={
               <RefreshControl
-                //refresh control used for the Pull to Refresh
+                tintColor={isThemeDark ? 'white' : 'black'}
                 refreshing={isRefreshing}
                 onRefresh={() => setRefresh(!refresh)}
               />
