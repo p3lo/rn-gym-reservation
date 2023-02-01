@@ -90,7 +90,10 @@ function AdminMember({ navigation, route }: { navigation: any; route: any }) {
   }
 
   async function removeMember() {
-    await supabase.from('gym_members').delete().eq('member', userId);
+    await Promise.all([
+      supabase.from('gym_members').delete().eq('member', userId),
+      supabase.from('training_slots').delete().eq('member_id', userId),
+    ]);
     setRefresh(!refresh);
     navigation.goBack();
   }
@@ -173,7 +176,7 @@ function AdminMember({ navigation, route }: { navigation: any; route: any }) {
           onCancel={() => setShow(false)}
           minimumDate={new Date()}
           is24Hour={true}
-          date={membershipDate}
+          date={member?.paid_till ? new Date(member.paid_till) : new Date()}
         />
         <Portal>
           <Dialog visible={visibleDialog} onDismiss={hideDialog}>
