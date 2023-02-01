@@ -48,9 +48,8 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
   const [trainings, setTrainings] = React.useState<Training[][]>([]);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     navigation.setOptions({
-      title: 'Vyber gym',
       headerRight: () => <IconButton icon="menu" size={20} onPress={openDrawer} />,
       headerLeft: () => <IconButton icon="select" size={20} onPress={() => setVisiblePicker(true)} />,
     });
@@ -63,7 +62,7 @@ function Home({ route, navigation }: { route: any; navigation: any }) {
       }
     }
     fetchGymGlobal();
-  }, []);
+  }, [selectedGym.gym_name]);
 
   React.useEffect(() => {
     async function getGymMember() {
