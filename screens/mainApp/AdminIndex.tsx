@@ -58,7 +58,7 @@ function AdminIndex({ route, navigation }: { route: any; navigation: any }) {
           <Button
             style={{ minWidth: '100%' }}
             mode="contained-tonal"
-            onPress={() => navigation.navigate('AdminEditTraining')}
+            onPress={() => navigation.navigate('AdminListTrainings')}
           >
             Upravit trening
           </Button>
