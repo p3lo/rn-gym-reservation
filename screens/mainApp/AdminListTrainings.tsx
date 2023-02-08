@@ -114,41 +114,39 @@ function AdminListTrainings({ navigation }: { navigation: any }) {
     <ScrollView className="flex-1 my-3">
       <DataTable>
         {trainings.map((training) => (
-          <>
-            <DataTable.Row key={training.id}>
-              <DataTable.Cell className="p-3">
-                <View>
-                  <Text variant="bodyLarge" style={{ fontWeight: '700' }}>
-                    {training.name}
-                  </Text>
-                  <View className="flex flex-row gap-x-1">
-                    <Text>{formatDate(training.date)}</Text>
-                    <Text>{formatTime(training.time)}</Text>
-                    <Text>|</Text>
-                    <Text>{training.training_length} min</Text>
-                  </View>
-                  <Text>Slotov: {training.available_slots}</Text>
+          <DataTable.Row key={training.id}>
+            <DataTable.Cell className="p-3">
+              <View>
+                <Text variant="bodyLarge" style={{ fontWeight: '700' }}>
+                  {training.name}
+                </Text>
+                <View className="flex flex-row gap-x-1">
+                  <Text>{formatDate(training.date)}</Text>
+                  <Text>{formatTime(training.time)}</Text>
+                  <Text>|</Text>
+                  <Text>{training.training_length} min</Text>
                 </View>
-              </DataTable.Cell>
-              <DataTable.Cell numeric className="">
-                <View className="flex flex-row py-3 gap-x-1">
-                  <IconButton
-                    mode="contained-tonal"
-                    icon="square-edit-outline"
-                    size={25}
-                    onPress={() => navigation.navigate('AdminAddTraining', { training })}
-                  />
-                  <IconButton
-                    mode="contained-tonal"
-                    icon="delete-outline"
-                    iconColor="red"
-                    size={25}
-                    onPress={openDialog.bind(null, training.id, training.name, training.time)}
-                  />
-                </View>
-              </DataTable.Cell>
-            </DataTable.Row>
-          </>
+                <Text>Slotov: {training.available_slots}</Text>
+              </View>
+            </DataTable.Cell>
+            <DataTable.Cell numeric className="">
+              <View className="flex flex-row py-3 gap-x-1">
+                <IconButton
+                  mode="contained-tonal"
+                  icon="square-edit-outline"
+                  size={25}
+                  onPress={() => navigation.navigate('AdminEditTraining', { training })}
+                />
+                <IconButton
+                  mode="contained-tonal"
+                  icon="delete-outline"
+                  iconColor="red"
+                  size={25}
+                  onPress={openDialog.bind(null, training.id, training.name, training.time)}
+                />
+              </View>
+            </DataTable.Cell>
+          </DataTable.Row>
         ))}
         <DataTable.Pagination
           page={page}

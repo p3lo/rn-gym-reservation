@@ -167,7 +167,7 @@ function MainSection({ route }) {
         }}
       />
       <Stack.Screen name="AdminListTrainings" component={AdminListTrainings} options={{ title: 'Zoznam treningov' }} />
-      <Stack.Screen name="AdminListTrainings" component={AdminEditTraining} options={{ title: 'Upravit trening' }} />
+      <Stack.Screen name="AdminEditTraining" component={AdminEditTraining} options={{ title: 'Upravit trening' }} />
       <Stack.Screen name="TrainingDetails" component={TrainingDetails} />
     </Stack.Navigator>
   );

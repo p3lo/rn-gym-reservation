@@ -10,29 +10,18 @@ function TrainingFormOne({
   handleFormChange,
   setShowDate,
   setShowTime,
+  isEdit = false,
 }: {
   training: Training;
   handleFormChange: (key: keyof Training, value: string | number | boolean) => void;
   setShowDate: (showDate: boolean) => void;
   setShowTime: (showTime: boolean) => void;
+  isEdit?: boolean;
 }) {
   return (
     <View className="flex flex-col">
-      <View className="flex flex-row justify-between">
-        <Pressable className="w-[45%]" onPress={() => setShowDate(true)}>
-          <View pointerEvents="none">
-            <TextInput
-              mode="outlined"
-              style={{ width: '100%' }}
-              autoCorrect={false}
-              label="Datum treningu"
-              left={<TextInput.Icon icon="calendar-account-outline" />}
-              value={formatDate(training.date || new Date())}
-              showSoftInputOnFocus={false}
-            />
-          </View>
-        </Pressable>
-        <Pressable className="w-[45%]" onPress={() => setShowTime(true)}>
+      {isEdit ? (
+        <Pressable className="w-full" onPress={() => setShowTime(true)}>
           <View pointerEvents="none">
             <TextInput
               mode="outlined"
@@ -45,7 +34,36 @@ function TrainingFormOne({
             />
           </View>
         </Pressable>
-      </View>
+      ) : (
+        <View className="flex flex-row justify-between">
+          <Pressable className="w-[45%]" onPress={() => setShowDate(true)}>
+            <View pointerEvents="none">
+              <TextInput
+                mode="outlined"
+                style={{ width: '100%' }}
+                autoCorrect={false}
+                label="Datum treningu"
+                left={<TextInput.Icon icon="calendar-account-outline" />}
+                value={formatDate(training.date || new Date())}
+                showSoftInputOnFocus={false}
+              />
+            </View>
+          </Pressable>
+          <Pressable className="w-[45%]" onPress={() => setShowTime(true)}>
+            <View pointerEvents="none">
+              <TextInput
+                mode="outlined"
+                style={{ width: '100%' }}
+                autoCorrect={false}
+                label="Cas treningu"
+                left={<TextInput.Icon icon="clock-time-four-outline" />}
+                value={getTimeFromDate(training.training_time || new Date())}
+                showSoftInputOnFocus={false}
+              />
+            </View>
+          </Pressable>
+        </View>
+      )}
       <View className="flex flex-col mt-5 ">
         <Text style={{ width: '100%', textAlign: 'center' }}>Dlzka treningu (minuty)</Text>
         <Text style={{ width: '100%', textAlign: 'center' }}>{training.training_length}</Text>
