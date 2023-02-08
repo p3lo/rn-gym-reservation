@@ -25,7 +25,7 @@ function AdminEditTraining({ route, navigation }: { route: any; navigation: any 
     allow_overbooking: training?.allow_overbooking,
   });
   const [updateStyle, setUpdateStyle] = React.useState('one');
-  console.log(training);
+
   React.useEffect(() => {
     setTimeout(() => {
       setTrainingDetails({
@@ -60,7 +60,6 @@ function AdminEditTraining({ route, navigation }: { route: any; navigation: any 
     const time = getTimeFromDate(trainingDetails.training_time);
     const dataUpdate = {
       name: trainingDetails.name,
-      date: trainingDetails.date,
       time: time,
       training_length: trainingDetails.training_length,
       available_slots: trainingDetails.available_slots,
