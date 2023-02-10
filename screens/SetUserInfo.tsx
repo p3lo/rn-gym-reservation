@@ -62,7 +62,7 @@ function SetUserInfo(this: any, { route }) {
 
   return (
     <ScrollView className="flex-1 ">
-      <View className="items-center justify-center flex-1 p-4 min-h-[88vh]">
+      <View className="items-center justify-center flex-1 p-4 min-h-[86vh]">
         <KeyboardAvoidingView behavior="position" className="flex flex-col w-full">
           <DateTimePickerModal
             isVisible={show}

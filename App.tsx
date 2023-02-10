@@ -38,6 +38,7 @@ import AdminAddTraining from './screens/mainApp/AdminAddTraining';
 import TrainingDetails from './screens/mainApp/TrainingDetails';
 import AdminListTrainings from './screens/mainApp/AdminListTrainings';
 import AdminEditTraining from './screens/mainApp/AdminEditTraining';
+import { AuthContextProvider } from './lib/supabase/AuthContext';
 global.Buffer = require('buffer').Buffer;
 
 const { LightTheme, DarkTheme } = adaptNavigationTheme({
@@ -65,12 +66,12 @@ export default function App() {
     getTheme();
   }, []);
   return (
-    <>
+    <AuthContextProvider>
       <StatusBar style={theme === CombinedDarkTheme ? 'light' : 'dark'} />
       <PaperProvider theme={theme}>
         <Root theme={theme} />
       </PaperProvider>
-    </>
+    </AuthContextProvider>
   );
 }
 

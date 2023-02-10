@@ -5,6 +5,10 @@ import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { Button, Divider, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
 import { authTokenAtom, showSnackbarRegistrationAtom } from '../lib/jotai/atoms';
 import { googleSignIn, linkedInSignIn, supabase } from '../lib/supabase/supabase';
+import * as Linking from 'expo-linking';
+import { z } from 'zod';
+
+const email = z.string().email();
 
 function LoginScreen(this: any) {
   const { navigate } = useNavigation();
@@ -14,6 +18,9 @@ function LoginScreen(this: any) {
     email: '',
     password: '',
   });
+  const [magicEmail, setMagicEmail] = React.useState('');
+  const [magicEmailSent, setMagicEmailSent] = React.useState(false);
+  const [wrongEmail, setWrongEmail] = React.useState(false);
   const [wrongCredentials, setWrongCredentials] = React.useState(false);
 
   function handleLoginInputs(key: keyof typeof login, value: string) {
@@ -32,6 +39,30 @@ function LoginScreen(this: any) {
     if (data.session) {
       setToken(data.session.access_token);
     }
+  }
+
+  async function sendMagicLink() {
+    let redirectURL = Linking.createURL('/auth/callback');
+    const emailError = email.safeParse(magicEmail);
+    if (!emailError.success) {
+      setWrongEmail(true);
+      return;
+    } else {
+      setWrongEmail(false);
+    }
+
+    let { error } = await supabase.auth.signInWithOtp({
+      email: magicEmail,
+      options: {
+        emailRedirectTo: redirectURL,
+      },
+    });
+    if (error) {
+      console.log(JSON.stringify(error));
+      return;
+    }
+    setMagicEmail('');
+    setMagicEmailSent(true);
   }
 
   async function handleGoogleLogin() {
@@ -109,12 +140,28 @@ function LoginScreen(this: any) {
           <Text style={{ opacity: 0.5 }} variant="titleSmall">
             Alebo sa logni
           </Text>
-          <Button style={{ minWidth: '100%' }} icon="google" mode="outlined" onPress={handleGoogleLogin}>
+          {/* <Button style={{ minWidth: '100%' }} icon="google" mode="outlined" onPress={handleGoogleLogin}>
             Google
           </Button>
           <Button style={{ minWidth: '100%' }} icon="linkedin" mode="outlined" onPress={handleLinkedinLogin}>
             LinkedIN
+          </Button> */}
+          <TextInput
+            style={{ width: '100%' }}
+            autoCapitalize="none"
+            autoCorrect={false}
+            label="Email"
+            left={<TextInput.Icon icon="email-outline" />}
+            onChangeText={(text) => setMagicEmail(text)}
+            value={magicEmail}
+            error={wrongEmail}
+          />
+          <Button style={{ minWidth: '100%' }} icon="email" mode="outlined" onPress={sendMagicLink}>
+            Posli magic link
           </Button>
+          <HelperText type="info" visible={magicEmailSent}>
+            Login link bol poslany na vas email.
+          </HelperText>
         </View>
       </View>
       <Snackbar
